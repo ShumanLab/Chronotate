@@ -1,6 +1,6 @@
 <img src="https://user-images.githubusercontent.com/108362860/216124746-450dccf6-c007-4eee-b271-0ba784071acd.png" width="300">
 
-**Chronotate** (chrono + notate) Is a simple utility for generating timestamped annotations during video playback. This python application captures key down/up events to mark the start and stop time of events during video playback.  
+**Chronotate** (chrono + notate) is a simple utility for generating timestamped annotations during video playback. This python application captures key down/up events to mark the start and stop time of events during video playback.  
 
 This utility was developed to aid in the scoring of novel object recognition/ novel object location (NOR/NOL) tasks.  This program supports scoring interaction with up to four objects simultaneously, each bound to the ‘j’, ’k’, ‘l’, or ‘;’ key.  Holding the relevant key down generates a timestamp marking the beginning of an interaction bout, and releasing the key marks the end of the bout. These timestamps can then be exported to quantify bout durations, total interaction time, and minute-by-minute interaction as desired.
 
