@@ -35,7 +35,7 @@ The python scripts are compatible with OSX, Linux and Windows.
 
 ## Installation:  
 **Precompiled Version:**  
-This software is distributed as a precompiled, standalone, executable file.  All that is required to begin using this software is to download the .exe.  Due to github's handling of large files, the .exe might not be proerly downladed when cloning the repository. In this case, download the the individual .exe directly by clicking on it on the the github web interface.  
+This software is distributed as a precompiled, standalone, executable file.  All that is required to begin using this software is to download the .exe.  Due to GitHub’s handling of large files, the .exe might not be properly downloaded when cloning the repository. In this case, download the individual .exe directly by clicking on it on the GitHub web interface. 
 
 **Source Version:**
 In the case that greater flexibility is desired than the precompiled version offers, the source files are provided in this repositiory. In order to run these scripts it is recommended to set up a new Conda environment for Chronotate. The required dependencies are:  
