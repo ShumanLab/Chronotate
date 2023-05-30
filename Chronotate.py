@@ -8,7 +8,7 @@
 
 # MIT License
 #
-# Copyright (c) 2021 Paul
+# Copyright (c) 2022 Paul
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,20 +31,28 @@
 
 import os
 import datetime
+import time
 import tkinter as tk
 from tkinter import filedialog
 from tkVideoPlayer import TkinterVideo  # this version of tkVideoPlayer is a modified version based off release 2.2
 import pandas as pd
+from PIL import ImageTk, Image, ImageOps
 
 
 class chronotate:
 
     def __init__(self):
 
-        self.object_1_key = "j"
-        self.object_2_key = "k"
-        self.object_3_key = "l"
-        self.object_4_key = "semicolon"
+        self.object_1_key = 74  # "j"
+        self.object_2_key = 75  # "k"
+        self.object_3_key = 76  # "l"
+        self.object_4_key = 186  # "semicolon"
+
+        self.speed_up_key = 87  # 'w'
+        self.speed_down_key = 83  # 's'
+        self.skip_back_key = 65  # 'a'
+        self.skip_forward_key = 68  # 'd'
+        self.play_key = 32  # 'space'
 
         self.key1_down = False
         self.key2_down = False
@@ -66,7 +74,10 @@ class chronotate:
         self.object_id = []
 
         self.root = tk.Tk()
-        self.root.title("chronoNotate")
+
+
+        self.root.title("Chronotate")
+        # self.root.iconbitmap("Chronotate.ico")
         self.root.geometry("800x720")
 
         # frame = tk.Frame(root, width=100, height=100)
@@ -75,13 +86,26 @@ class chronotate:
         # frame.pack()
         # frame.focus_set()
 
+        self.root.unbind_class("Listbox", "<Key-space>")
+
         self.root.bind("<KeyPress>", self.keydown)  # lambda event, arg=self.keysNum: self.keydown(event, arg))
         self.root.bind("<KeyRelease>", self.keyup)
 
-        self.load_video_btn = tk.Button(self.root, text="Load Video", command=self.load_video)
-        self.load_video_btn.pack()
-        self.load_markers_btn = tk.Button(self.root, text="Load Marker File", command=self.load_markers)
-        self.load_markers_btn.pack()
+        self.load_video_frame = tk.Frame(self.root)
+        self.load_video_btn = tk.Button(self.load_video_frame, text="Load Video", command=self.load_video)
+        self.load_video_btn.pack(side='left')
+        self.video_file_path = ''
+        self.loaded_video = tk.Label(self.load_video_frame, text=self.video_file_path)
+        self.loaded_video.pack(side='left')
+        self.load_video_frame.pack()
+
+        self.load_markers_frame = tk.Frame(self.root)
+        self.load_markers_btn = tk.Button(self.load_markers_frame, text="Load Marker File", command=self.load_markers)
+        self.load_markers_btn.pack(side='left')
+        self.marker_file_path = ''
+        self.loaded_marker_file = tk.Label(self.load_markers_frame, text=self.marker_file_path)
+        self.loaded_marker_file.pack(side='left')
+        self.load_markers_frame.pack()
 
         self.clr_markers_btn = tk.Button(self.root, text="Clear Markers", command=self.clear_markers)
 
@@ -109,10 +133,10 @@ class chronotate:
         self.start_time = tk.Label(self.btn_frame, text=str(datetime.timedelta(seconds=0)))
         self.start_time.pack(side="left")
 
-        self.progress_value = tk.IntVar(self.root)
+        self.progress_value = tk.DoubleVar(self.root)
 
         # self.progress_slider = tk.Scale(self.btn_frame, variable=self.progress_value, from_=0, to=0, orient="horizontal", command=self.seek)
-        self.progress_slider = tk.Scale(self.btn_frame, variable=self.progress_value, from_=0, to=0, orient="horizontal", command=self.seek)
+        self.progress_slider = tk.Scale(self.btn_frame, variable=self.progress_value, resolution=0.1, from_=0, to=0, orient="horizontal", command=self.seek)
         self.progress_slider.pack(side="left", fill="x", expand=True)
 
         self.end_time = tk.Label(self.btn_frame, text=str(datetime.timedelta(seconds=0)))
@@ -149,13 +173,16 @@ class chronotate:
         self.export_btn.pack()
 
         self.vid_player.bind("<<Duration>>", self.update_duration)
-        self.vid_player.bind("<<SecondChanged>>", self.update_scale)
+        # self.vid_player.bind("<<SecondChanged>>", self.update_scale)
+        self.vid_player.bind("<<Update>>", self.update_scale)  # update scale evey frame
         self.vid_player.bind("<<Ended>>", self.video_ended)
+
+
 
         self.root.mainloop()
 
     def keyup(self, event):
-        if event.keysym == self.object_1_key:
+        if event.keycode == self.object_1_key:
             self.key1_down = False
             # self.object_1_ends = self.object_1_ends + [self.vid_player.current_duration()]
             # print(self.object_1_ends)
@@ -165,7 +192,7 @@ class chronotate:
 
             self.add_marker("stop", 1)
 
-        elif event.keysym == self.object_2_key:
+        elif event.keycode == self.object_2_key:
             self.key2_down = False
             # self.object_2_ends = self.object_2_ends + [self.vid_player.current_duration()]
             # print(self.object_2_ends)
@@ -174,7 +201,7 @@ class chronotate:
             # self.object_id = self.object_id + [2]
             self.add_marker("stop", 2)
 
-        elif event.keysym == self.object_3_key:
+        elif event.keycode == self.object_3_key:
             self.key3_down = False
             # self.object_3_ends = self.object_3_ends + [self.vid_player.current_duration()]
             # print(self.object_3_ends)
@@ -183,7 +210,7 @@ class chronotate:
             # self.object_id = self.object_id + [3]
             self.add_marker("stop", 3)
 
-        elif event.keysym == self.object_4_key:
+        elif event.keycode == self.object_4_key:
             self.key4_down = False
             # self.object_4_ends = self.object_4_ends + [self.vid_player.current_duration()]
             # print(self.object_4_ends)
@@ -193,7 +220,8 @@ class chronotate:
             self.add_marker("stop", 4)
 
     def keydown(self, event):  # , arg):
-        if (event.keysym == self.object_1_key) & (~self.key1_down):
+        # print(event.keycode)
+        if (event.keycode == self.object_1_key) & (~self.key1_down):
             self.key1_down = True
             # self.object_1_starts = self.object_1_starts + [self.vid_player.current_duration()]
             # print(self.object_1_starts)
@@ -202,7 +230,7 @@ class chronotate:
             # self.object_id = self.object_id + [1]
             self.add_marker("start", 1)
 
-        elif (event.keysym == self.object_2_key) & (~self.key2_down):
+        elif (event.keycode == self.object_2_key) & (~self.key2_down):
             self.key2_down = True
             # self.object_2_starts = self.object_2_starts + [self.vid_player.current_duration()]
             # print(self.object_2_starts)
@@ -211,7 +239,7 @@ class chronotate:
             # self.object_id = self.object_id + [2]
             self.add_marker("start", 2)
 
-        elif (event.keysym == self.object_3_key) & (~self.key3_down):
+        elif (event.keycode == self.object_3_key) & (~self.key3_down):
             self.key3_down = True
             # self.object_3_starts = self.object_3_starts + [self.vid_player.current_duration()]
             # print(self.object_3_starts)
@@ -220,7 +248,7 @@ class chronotate:
             # self.object_id = self.object_id + [3]
             self.add_marker("start", 3)
 
-        elif (event.keysym == self.object_4_key) & (~self.key4_down):
+        elif (event.keycode == self.object_4_key) & (~self.key4_down):
             self.key4_down = True
             # self.object_4_starts = self.object_4_starts + [self.vid_player.current_duration()]
             # print(self.object_4_starts)
@@ -228,6 +256,24 @@ class chronotate:
             # self.marker_type = self.marker_type + ["start"]
             # self.object_id = self.object_id + [4]
             self.add_marker("start", 4)
+
+        elif event.keycode == self.speed_up_key:
+            self.speed_var.set(min(max(self.speed_var.get()*2, .125), 8))
+            self.vid_player.set_speed(self.speed_var.get())
+
+        elif event.keycode == self.speed_down_key:
+            self.speed_var.set(min(max(self.speed_var.get()/2, .125), 8))
+            self.vid_player.set_speed(self.speed_var.get())
+
+        elif event.keycode == self.skip_back_key:
+            self.skip(-5)
+
+        elif event.keycode == self.skip_forward_key:
+            self.skip(5)
+
+        elif event.keycode == self.play_key:
+            self.play_pause()
+
 
     def update_duration(self, event):
         """ updates the duration after finding the duration """
@@ -237,7 +283,7 @@ class chronotate:
 
     def update_scale(self, event):
         """ updates the scale value """
-        #self.progress_slider.set(self.vid_player.current_duration())
+        # print(self.vid_player.current_duration())
         self.progress_value.set(self.vid_player.current_duration())
 
     def load_video(self):
@@ -246,17 +292,21 @@ class chronotate:
         self.video_file_path = filedialog.askopenfilename(title='select')
 
         if self.video_file_path:
+            self.loaded_video["text"] = self.video_file_path
             self.vid_player.load(self.video_file_path)
             # print(self.vid_player.video_info()["duration"])
             self.progress_slider.config(to=0, from_=0)
             #self.progress_slider.set(0)
             self.progress_value.set(0)
             self.play_pause_btn["text"] = "Play"
+            # self.vid_player._display_frame()
+            # self.vid_player.current_imgtk = ImageTk.PhotoImage(self.vid_player.current_img)
 
     def load_markers(self):
         self.clear_markers()
-        marker_file_path = filedialog.askopenfilename(title='select', filetypes=[("csv files", ".csv")])
-        df = pd.read_csv(marker_file_path)
+        self.marker_file_path = filedialog.askopenfilename(title='select', filetypes=[("csv files", ".csv")])
+        self.loaded_marker_file["text"] = self.marker_file_path
+        df = pd.read_csv(self.marker_file_path)
         self.marker_time = df['marker_time'].tolist()
         self.marker_type = df['marker_type'].tolist()
         self.object_id = df['object_id'].tolist()
@@ -345,6 +395,8 @@ class chronotate:
         select_time = self.marker_time[index]
         self.seek(select_time)
         self.progress_value.set(select_time)
+
+
 
 
 
