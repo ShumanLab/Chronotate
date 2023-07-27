@@ -38,7 +38,7 @@ The python scripts are compatible with OSX, Linux and Windows.
 
 ## Installation:  
 **Precompiled Version:**  
-This software is distributed as a precompiled, standalone, executable file.  All that is required to begin using this software is to download the .exe.  Due to GitHub’s handling of large files, the .exe might not be properly downloaded when cloning the repository. [Click Here To Download The EXE](https://github.com/ShumanLab/Chronotate/raw/main/Chronotate.exe?download=)
+This software is distributed as a precompiled, standalone, executable file.  All that is required to begin using this software is to download the .exe.  Due to GitHub’s handling of large files, cloning or downloading the .zip of the repository will result in a broken exe. Therefore, the exe must be downloaded separately, which can be done by [clicking here](https://github.com/ShumanLab/Chronotate/raw/main/Chronotate.exe?download=)
 
 **Source Version:**
 In the case that greater flexibility is desired than the precompiled version offers, the source files are provided in this repositiory. In order to run these scripts it is recommended to set up a new Conda environment for Chronotate. The required dependencies are:  
