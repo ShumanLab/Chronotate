@@ -31,17 +31,60 @@
 
 import os
 import datetime
-import time
+import json
+# import sys
+# import time
 import tkinter as tk
 from tkinter import filedialog
 from tkVideoPlayer import TkinterVideo  # this version of tkVideoPlayer is a modified version based off release 2.2
 import pandas as pd
-from PIL import ImageTk, Image, ImageOps
+# from PIL import ImageTk, Image, ImageOps
 
 
 class chronotate:
 
     def __init__(self):
+
+        self.keysDict_default = {
+        "object_1_key" : 74,  # "j"
+        "object_2_key" : 75,  # "k"
+        "object_3_key" : 76,  # "l"
+        "object_4_key" : 186,  # "semicolon"
+
+        "speed_up_key" : 87,  # 'w'
+        "speed_down_key" : 83,  # 's'
+        "skip_back_key" : 65,  # 'a'
+        "skip_forward_key" : 68,  # 'd'
+        "play_key" : 32  # 'space'
+        }
+
+        self.keySymDict_default = {
+        "object_1_key" : "j",
+        "object_2_key" : "k",
+        "object_3_key" : "l",
+        "object_4_key" : "semicolon",
+
+        "speed_up_key" : 'w',
+        "speed_down_key" : 's',
+        "skip_back_key" : 'a',
+        "skip_forward_key" : 'd',
+        "play_key" : 'space'
+        }
+
+        keyBindsFile = os.path.join(os.getcwd(), 'keyBinds.json')
+
+        if os.path.isfile(keyBindsFile):
+            with open(keyBindsFile, 'r') as fd:
+                keysDictList = json.load(fd)
+                self.keySymDict = keysDictList[0]
+                self.keysDict = keysDictList[1]
+        else:
+            self.keySymDict = self.keySymDict_default
+            self.keysDict = self.keysDict_default
+
+
+
+
 
         self.object_1_key = 74  # "j"
         self.object_2_key = 75  # "k"
@@ -90,6 +133,11 @@ class chronotate:
 
         self.root.bind("<KeyPress>", self.keydown)  # lambda event, arg=self.keysNum: self.keydown(event, arg))
         self.root.bind("<KeyRelease>", self.keyup)
+
+#######################################################################################################################
+        self.bindKeysButton = tk.Button(self.root, text="customize key binds", command=self.popup)
+        self.bindKeysButton.pack()
+#######################################################################################################################
 
         self.load_video_frame = tk.Frame(self.root)
         self.load_video_btn = tk.Button(self.load_video_frame, text="Load Video", command=self.load_video)
@@ -181,8 +229,40 @@ class chronotate:
 
         self.root.mainloop()
 
+    def popup(self):
+        self.keyBindPopup=keyBindWindow(self.root, self)
+
+        for child in self.root.winfo_children():
+            try:
+                child.configure(state='disable')
+            except:
+                pass
+            if child.winfo_class() == 'Frame':
+                for grandChild in child.winfo_children():
+                    try:
+                        grandChild.configure(state='disable')
+                    except:
+                        pass
+
+        self.root.wait_window(self.keyBindPopup.top)
+
+        for child in self.root.winfo_children():
+            try:
+                child.configure(state='normal')
+            except:
+                pass
+            if child.winfo_class() == 'Frame':
+                for grandChild in child.winfo_children():
+                    try:
+                        grandChild.configure(state='normal')
+                    except:
+                        pass
+
+    def entryValue(self):
+        return self.keyBindPopup.value
+
     def keyup(self, event):
-        if event.keycode == self.object_1_key:
+        if event.keycode == self.keysDict["object_1_key"]:
             self.key1_down = False
             # self.object_1_ends = self.object_1_ends + [self.vid_player.current_duration()]
             # print(self.object_1_ends)
@@ -192,7 +272,7 @@ class chronotate:
 
             self.add_marker("stop", 1)
 
-        elif event.keycode == self.object_2_key:
+        elif event.keycode == self.keysDict["object_2_key"]:
             self.key2_down = False
             # self.object_2_ends = self.object_2_ends + [self.vid_player.current_duration()]
             # print(self.object_2_ends)
@@ -201,7 +281,7 @@ class chronotate:
             # self.object_id = self.object_id + [2]
             self.add_marker("stop", 2)
 
-        elif event.keycode == self.object_3_key:
+        elif event.keycode == self.keysDict["object_3_key"]:
             self.key3_down = False
             # self.object_3_ends = self.object_3_ends + [self.vid_player.current_duration()]
             # print(self.object_3_ends)
@@ -210,7 +290,7 @@ class chronotate:
             # self.object_id = self.object_id + [3]
             self.add_marker("stop", 3)
 
-        elif event.keycode == self.object_4_key:
+        elif event.keycode == self.keysDict["object_4_key"]:
             self.key4_down = False
             # self.object_4_ends = self.object_4_ends + [self.vid_player.current_duration()]
             # print(self.object_4_ends)
@@ -221,7 +301,7 @@ class chronotate:
 
     def keydown(self, event):  # , arg):
         # print(event.keycode)
-        if (event.keycode == self.object_1_key) & (~self.key1_down):
+        if (event.keycode == self.keysDict["object_1_key"]) & (~self.key1_down):
             self.key1_down = True
             # self.object_1_starts = self.object_1_starts + [self.vid_player.current_duration()]
             # print(self.object_1_starts)
@@ -230,7 +310,7 @@ class chronotate:
             # self.object_id = self.object_id + [1]
             self.add_marker("start", 1)
 
-        elif (event.keycode == self.object_2_key) & (~self.key2_down):
+        elif (event.keycode == self.keysDict["object_2_key"]) & (~self.key2_down):
             self.key2_down = True
             # self.object_2_starts = self.object_2_starts + [self.vid_player.current_duration()]
             # print(self.object_2_starts)
@@ -239,7 +319,7 @@ class chronotate:
             # self.object_id = self.object_id + [2]
             self.add_marker("start", 2)
 
-        elif (event.keycode == self.object_3_key) & (~self.key3_down):
+        elif (event.keycode == self.keysDict["object_3_key"]) & (~self.key3_down):
             self.key3_down = True
             # self.object_3_starts = self.object_3_starts + [self.vid_player.current_duration()]
             # print(self.object_3_starts)
@@ -248,7 +328,7 @@ class chronotate:
             # self.object_id = self.object_id + [3]
             self.add_marker("start", 3)
 
-        elif (event.keycode == self.object_4_key) & (~self.key4_down):
+        elif (event.keycode == self.keysDict["object_4_key"]) & (~self.key4_down):
             self.key4_down = True
             # self.object_4_starts = self.object_4_starts + [self.vid_player.current_duration()]
             # print(self.object_4_starts)
@@ -257,21 +337,21 @@ class chronotate:
             # self.object_id = self.object_id + [4]
             self.add_marker("start", 4)
 
-        elif event.keycode == self.speed_up_key:
+        elif event.keycode == self.keysDict["speed_up_key"]:
             self.speed_var.set(min(max(self.speed_var.get()*2, .125), 8))
             self.vid_player.set_speed(self.speed_var.get())
 
-        elif event.keycode == self.speed_down_key:
+        elif event.keycode == self.keysDict["speed_down_key"]:
             self.speed_var.set(min(max(self.speed_var.get()/2, .125), 8))
             self.vid_player.set_speed(self.speed_var.get())
 
-        elif event.keycode == self.skip_back_key:
+        elif event.keycode == self.keysDict["skip_back_key"]:
             self.skip(-5)
 
-        elif event.keycode == self.skip_forward_key:
+        elif event.keycode == self.keysDict["skip_forward_key"]:
             self.skip(5)
 
-        elif event.keycode == self.play_key:
+        elif event.keycode == self.keysDict["play_key"]:
             self.play_pause()
 
 
@@ -395,6 +475,106 @@ class chronotate:
         select_time = self.marker_time[index]
         self.seek(select_time)
         self.progress_value.set(select_time)
+
+class keyBindWindow:
+    def __init__(self, master, callingInstance):
+        self.master = master
+        top = self.top = tk.Toplevel(master)
+        self.top.bind("<KeyPress>", self.bindKey)
+        self.callingInstance = callingInstance
+
+        # self.skip_plus_5sec = tk.Button(self.btn_frame, text="Skip +5 sec", command=lambda: self.skip(5))
+        self.bindObject1 = tk.Button(top, text="Bind Object 1 key", command=lambda: self.bindAction("object_1_key", self.Object1Label))
+        self.bindObject1.pack()
+        self.Object1Label = tk.Label(top, text=self.callingInstance.keySymDict["object_1_key"])
+        self.Object1Label.pack()
+
+        self.bindObject2 = tk.Button(top, text="Bind Object 2 key", command=lambda: self.bindAction("object_2_key", self.Object2Label))
+        self.bindObject2.pack()
+        self.Object2Label = tk.Label(top, text=self.callingInstance.keySymDict["object_2_key"])
+        self.Object2Label.pack()
+
+        self.bindObject3 = tk.Button(top, text="Bind Object 3 key", command=lambda: self.bindAction("object_3_key", self.Object3Label))
+        self.bindObject3.pack()
+        self.Object3Label = tk.Label(top, text=self.callingInstance.keySymDict["object_3_key"])
+        self.Object3Label.pack()
+
+        self.bindObject4 = tk.Button(top, text="Bind Object 4 key", command=lambda: self.bindAction("object_4_key", self.Object4Label))
+        self.bindObject4.pack()
+        self.Object4Label = tk.Label(top, text=self.callingInstance.keySymDict["object_4_key"])
+        self.Object4Label.pack()
+
+        self.bindSpeedUp = tk.Button(top, text="Bind speed up key", command=lambda: self.bindAction("speed_up_key", self.SpeedUpLabel))
+        self.bindSpeedUp.pack()
+        self.SpeedUpLabel = tk.Label(top, text=self.callingInstance.keySymDict["speed_up_key"])
+        self.SpeedUpLabel.pack()
+
+        self.bindSpeedDown = tk.Button(top, text="Bind speed down key", command=lambda: self.bindAction("speed_down_key", self.SpeedDownLabel))
+        self.bindSpeedDown.pack()
+        self.SpeedDownLabel = tk.Label(top, text=self.callingInstance.keySymDict["speed_down_key"])
+        self.SpeedDownLabel.pack()
+
+        self.bindSkipBack = tk.Button(top, text="Bind skip back key", command=lambda: self.bindAction("skip_back_key", self.SkipBackLabel))
+        self.bindSkipBack.pack()
+        self.SkipBackLabel = tk.Label(top, text=self.callingInstance.keySymDict["skip_back_key"])
+        self.SkipBackLabel.pack()
+
+        self.bindSkipForward = tk.Button(top, text="Bind skip forward key", command=lambda: self.bindAction("skip_forward_key", self.SkipForwardLabel))
+        self.bindSkipForward.pack()
+        self.SkipForwardLabel = tk.Label(top, text=self.callingInstance.keySymDict["skip_forward_key"])
+        self.SkipForwardLabel.pack()
+
+        self.bindPlay = tk.Button(top, text="Bind Play/Pause", command=lambda: self.bindAction("play_key", self.PlayLabel))
+        self.bindPlay.pack()
+        self.PlayLabel = tk.Label(top, text=self.callingInstance.keySymDict["play_key"])
+        self.PlayLabel.pack()
+
+
+        self.saveKeyBindsButton = tk.Button(top, text='Save Keybinds', command=self.saveKeyBinds)
+        self.saveKeyBindsButton.pack()
+
+        self.defaultKeyBindsButton = tk.Button(top, text='Restore Defaults', command=self.defaultKeyBinds)
+        self.defaultKeyBindsButton.pack()
+
+        self.closeKeyBindsButton = tk.Button(top, text='Close', command=self.closeKeyBinds)
+        self.closeKeyBindsButton.pack()
+
+    def bindAction(self, action, label):
+        self.actionToBind = action
+        self.labelToUpdate = label
+        print(self.actionToBind)
+
+    def bindKey(self, event):
+        # self.callingInstance.play_key = event.keycode
+        self.callingInstance.keysDict[self.actionToBind] = event.keycode
+        self.callingInstance.keySymDict[self.actionToBind] = event.keysym
+        self.labelToUpdate.config(text=event.keysym)
+        # print(event.keysym)
+
+    def saveKeyBinds(self):
+        # print(os.path.join(os.getcwd(),'keyBinds.json'))
+        keyBindsFile = os.path.join(os.getcwd(), 'keyBinds.json')
+        with open(keyBindsFile, 'w') as fd:
+            fd.write(json.dumps([self.callingInstance.keySymDict, self.callingInstance.keysDict]))
+        self.top.destroy()
+
+    def defaultKeyBinds(self):
+        self.callingInstance.keySymDict = self.callingInstance.keySymDict_default
+        self.callingInstance.keysDict = self.callingInstance.keysDict_default
+        self.Object1Label.config(text=self.callingInstance.keySymDict["object_1_key"])
+        self.Object2Label.config(text=self.callingInstance.keySymDict["object_2_key"])
+        self.Object3Label.config(text=self.callingInstance.keySymDict["object_3_key"])
+        self.Object4Label.config(text=self.callingInstance.keySymDict["object_4_key"])
+        self.SpeedUpLabel.config(text=self.callingInstance.keySymDict["speed_up_key"])
+        self.SpeedDownLabel.config(text=self.callingInstance.keySymDict["speed_down_key"])
+        self.SkipBackLabel.config(text=self.callingInstance.keySymDict["skip_back_key"])
+        self.SkipForwardLabel.config(text=self.callingInstance.keySymDict["skip_forward_key"])
+        self.PlayLabel.config(text=self.callingInstance.keySymDict["play_key"])
+
+
+    def closeKeyBinds(self):
+        self.top.destroy()
+
 
 
 
