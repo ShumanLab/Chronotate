@@ -1,3 +1,6 @@
+## Download the EXE:
+[Click Here To Download The EXE](https://github.com/ShumanLab/Chronotate/raw/main/Chronotate.exe?download=)
+
 <img src="https://user-images.githubusercontent.com/108362860/216124746-450dccf6-c007-4eee-b271-0ba784071acd.png" width="300">
 
 **Chronotate** (chrono + notate) is a simple utility for generating timestamped annotations during video playback. This python application captures key down/up events to mark the start and stop time of events during video playback.  
@@ -35,12 +38,14 @@ The python scripts are compatible with OSX, Linux and Windows.
 
 ## Installation:  
 **Precompiled Version:**  
-This software is distributed as a precompiled, standalone, executable file.  All that is required to begin using this software is to download the .exe.  Due to GitHub’s handling of large files, the .exe might not be properly downloaded when cloning the repository. In this case, download the individual .exe directly by clicking on it on the GitHub web interface. 
+This software is distributed as a precompiled, standalone, executable file.  All that is required to begin using this software is to download the .exe.  Due to GitHub’s handling of large files, cloning or downloading the .zip of the repository will result in a broken exe. Therefore, the exe must be downloaded separately, which can be done by [clicking here](https://github.com/ShumanLab/Chronotate/raw/main/Chronotate.exe?download=)
 
 **Source Version:**
 In the case that greater flexibility is desired than the precompiled version offers, the source files are provided in this repositiory. In order to run these scripts it is recommended to set up a new Conda environment for Chronotate. The required dependencies are:  
 * pandas  
-* tkinter  
+* tkinter
+* pyAV
+* Pillow  
 * the modified version of tkVideoPlayer hosted in this repository  
   
     
