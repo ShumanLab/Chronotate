@@ -47,7 +47,7 @@ In the case that greater flexibility is desired than the precompiled version off
 * tkinter
 * pyAV
 * Pillow  
-* the modified version of tkVideoPlayer hosted in this repository 
+* the modified version of tkVideoPlayer hosted in this repository  
 **Additional steps on Mac and Linux:**
 * Disable key repeat in your operating system's keyboard settings
 * Remap keyboard bindings via the 'cusomize key bindings' interface
