@@ -34,7 +34,8 @@ The file formats tested so far include avi, mkv, and mp4, but many more are like
 
 **Operating System Compatibility:**  
 The compiled .exe is compatible with Windows.  
-The python scripts are compatible with OSX, Linux and Windows.  
+The python scripts are compatible with OSX, Linux and Windows.
+(See source version installation instructions for additional setup required on Mac and Linux)
 
 ## Installation:  
 **Precompiled Version:**  
@@ -47,10 +48,14 @@ In the case that greater flexibility is desired than the precompiled version off
 * pyAV
 * Pillow  
 * the modified version of tkVideoPlayer hosted in this repository  
-  
-    
-      
-      
-Please cite chronotate if you use it in your research
+**Additional steps on Mac and Linux:**
+* Disable key repeat in your operating system's keyboard settings  
+* Remap keyboard bindings via the 'cusomize key bindings' interface  
 
+Step-by-step instructions can be found on the wiki: https://github.com/ShumanLab/Chronotate/wiki  
+__    
+      
+        
+Please cite chronotate if you use it in your research:
+https://doi.org/10.1016/j.neulet.2023.137461
 
