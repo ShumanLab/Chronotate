@@ -115,6 +115,7 @@ class chronotate:
         self.marker_time = []
         self.marker_type = []
         self.object_id = []
+        self.marker_frame =[]
 
         self.root = tk.Tk()
 
@@ -390,6 +391,7 @@ class chronotate:
         self.marker_time = df['marker_time'].tolist()
         self.marker_type = df['marker_type'].tolist()
         self.object_id = df['object_id'].tolist()
+        self.marker_frame = df['marker_frame'].tolist()
 
         for x in range(0,len(self.marker_time)):
             mkrId = self.object_id[x]
@@ -444,7 +446,8 @@ class chronotate:
         df = pd.DataFrame(
             {'marker_time': self.marker_time,
              'marker_type': self.marker_type,
-             'object_id': self.object_id})
+             'object_id': self.object_id,
+             'marker_frame': self.marker_frame})
 
         export_path = os.path.splitext(self.video_file_path)[0] + '_markers.csv'
         df.to_csv(export_path, index=False)
@@ -457,9 +460,11 @@ class chronotate:
 
     def add_marker(self, mkrType, mkrId):
         time_now = self.vid_player.current_duration()
+        frame_now = self.vid_player.current_frame_number()
         self.marker_time = self.marker_time + [time_now]
         self.marker_type = self.marker_type + [mkrType]
         self.object_id = self.object_id + [mkrId]
+        self.marker_frame = self.marker_frame + [frame_now]
         self.list_box.insert(tk.END, 'object %s %s: %ss' % (mkrId, mkrType, time_now))
         self.list_box.yview(tk.END)
 
@@ -468,6 +473,7 @@ class chronotate:
         self.marker_time = []
         self.marker_type = []
         self.object_id = []
+        self.marker_frame = []
 
     def select_marker(self, event):
         w = event.widget
