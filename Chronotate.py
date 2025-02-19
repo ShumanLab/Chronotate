@@ -380,6 +380,7 @@ class chronotate:
             #self.progress_slider.set(0)
             self.progress_value.set(0)
             self.play_pause_btn["text"] = "Play"
+            # print(self.vid_player.video_info()["framerate"])
             # self.vid_player._display_frame()
             # self.vid_player.current_imgtk = ImageTk.PhotoImage(self.vid_player.current_img)
 
@@ -462,9 +463,9 @@ class chronotate:
         time_now = self.vid_player.current_duration()
         frame_now = self.vid_player.current_frame_number()
         self.marker_time = self.marker_time + [time_now]
+        self.marker_frame = self.marker_frame + [frame_now]
         self.marker_type = self.marker_type + [mkrType]
         self.object_id = self.object_id + [mkrId]
-        self.marker_frame = self.marker_frame + [frame_now]
         self.list_box.insert(tk.END, 'object %s %s: %ss' % (mkrId, mkrType, time_now))
         self.list_box.yview(tk.END)
 

@@ -20,6 +20,7 @@ class TkinterVideo(tk.Label):
         self.path = ""
         self._load_thread = None
 
+        self._loaded = False
         self._paused = True
         self._stop = True
 
@@ -103,14 +104,14 @@ class TkinterVideo(tk.Label):
 
     def _load(self, path):
         """ load's file from a thread """
-
+        # print('starting thread')
         current_thread = threading.current_thread()
 
         with av.open(path) as self._container:
 
             self._container.streams.video[0].thread_type = "AUTO"
             
-            print(self._container.duration)
+            # print(self._container.duration)
             # print(self._container.start_time)
             self._container.fast_seek = False
             #self._container.fast_seek = False
@@ -118,8 +119,9 @@ class TkinterVideo(tk.Label):
 
             self.stream = self._container.streams.video[0]
 
+
             try:
-                self._video_info["framerate"] = int(self.stream.average_rate)
+                self._video_info["framerate"] = float(self.stream.average_rate)
 
             except TypeError:
                 raise TypeError("Not a video file")
@@ -134,6 +136,7 @@ class TkinterVideo(tk.Label):
             except (TypeError, tk.TclError):  # the video duration cannot be found, this can happen for mkv files
                 # print('duration NOT found')
                 pass
+
 
             self._frame_number = 0
 
@@ -150,6 +153,9 @@ class TkinterVideo(tk.Label):
             now = time.time_ns() // 1_000_000  # time in milliseconds
             then = now
 
+            # print(self._load_thread == current_thread)
+            # print(self._load_thread)
+            # print(current_thread)
             while self._load_thread == current_thread and not self._stop:
                 if self._seek: # seek to specific second
                     #print(float(frame.pts * self.stream.time_base))
@@ -173,18 +179,20 @@ class TkinterVideo(tk.Label):
 
                     #print(self._time_stamp)
                     self._seek = False
-                    self._frame_number = int(self._video_info["framerate"] * self._seek_sec)
+                    self._frame_number = int(round(self._video_info["framerate"] * self._seek_sec))
 
                     self._seek_sec = 0
 
+                # print(self._paused)
                 if self._paused:
-                    time.sleep(0.0001) # to allow other threads to function better when its paused
+                    time.sleep(0.0001)  # to allow other threads to function better when its paused
                     continue
 
                 now = time.time_ns() // 1_000_000  # time in milliseconds
                 delta = now - then  # time difference between current frame and previous frame
                 then = now
 
+                # print(delta)
                 if self.play_start:
                     #then = now
                     delta = 0
@@ -227,8 +235,10 @@ class TkinterVideo(tk.Label):
                         self._current_img = frame.to_image()
 
                         self.event_generate("<<FrameGenerated>>")
-
+                        # print('frame generated')
                         self._frame_number += 1
+
+
 
                     self._time_stamp = float(frame.pts * self.stream.time_base)
 
@@ -245,6 +255,9 @@ class TkinterVideo(tk.Label):
                     #time.sleep(.000000000001)
                     #print(self.playback_speed_2* (((1 / self._video_info["framerate"])) - (delta / 1000)) )
 
+
+                    self.event_generate("<<Update>>")
+
                     if self._frame_number % self._video_info["framerate"] == 0:
                         self.event_generate("<<SecondChanged>>")
 
@@ -256,7 +269,7 @@ class TkinterVideo(tk.Label):
         self._load_thread = None
 
         self._container = None
-        
+
         try:
             self.event_generate("<<Ended>>")  # this is generated when the video ends
 
@@ -267,6 +280,12 @@ class TkinterVideo(tk.Label):
         """ loads the file from the given path """
         self.stop()
         self.path = path
+        # print(self._video_info["framerate"])
+        self._load_thread = None
+        self._loaded = False
+        # time.sleep(0.0001)
+        time.sleep(0.1)  # need to let previous thread finish
+        self.play()
 
     def stop(self):
         """ stops reading the file """
@@ -279,6 +298,7 @@ class TkinterVideo(tk.Label):
 
     def play(self):
         """ plays the video file """
+        # print('playing')
         self._seek = False
         self._paused = False
         self._stop = False
@@ -288,6 +308,8 @@ class TkinterVideo(tk.Label):
             # print("loading new thread...")
             self._load_thread = threading.Thread(target=self._load,  args=(self.path, ), daemon=True)
             self._load_thread.start()
+            # threading.Event().wait(0.01)
+            # print(self._load_thread)
 
     def is_paused(self):
         """ returns if the video is paused """
@@ -339,6 +361,10 @@ class TkinterVideo(tk.Label):
 
         self.current_imgtk = ImageTk.PhotoImage(self._current_img)
         self.config(image=self.current_imgtk)
+        if not self._loaded:
+            self.pause()
+            self._loaded = True
+
 
     def seek(self, sec: int):
         """ seeks to specific time""" 
